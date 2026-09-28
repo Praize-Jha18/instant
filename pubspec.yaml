@@ -1,0 +1,12 @@
+name: instant_workspace
+publish_to: none
+environment:
+  sdk: ^3.12.0
+workspace:
+  - packages/core_models
+  - packages/api_client
+  - packages/local_db
+  - packages/design_system
+  - apps/customer
+  - apps/rider
+  - apps/vendor

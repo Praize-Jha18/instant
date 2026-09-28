@@ -1,0 +1,25 @@
+name: design_system
+description: Theme tokens, typography, motion and shared widgets for the Instant apps.
+version: 0.1.0
+publish_to: none
+
+environment:
+  sdk: ^3.12.0
+  flutter: ">=3.44.0"
+resolution: workspace
+
+dependencies:
+  flutter:
+    sdk: flutter
+  cached_network_image: ^3.4.1
+  core_models:
+    path: ../core_models
+  google_fonts: ^6.2.1
+
+dev_dependencies:
+  flutter_lints: ^6.0.0
+  flutter_test:
+    sdk: flutter
+
+flutter:
+  uses-material-design: true
