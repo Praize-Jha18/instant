@@ -10,7 +10,12 @@ import '../../../../core/geo.dart';
 import '../../domain/vendor_helpers.dart';
 
 class VendorCard extends ConsumerWidget {
-  const VendorCard({super.key, required this.vendor, this.distanceKm, this.width});
+  const VendorCard({
+    super.key,
+    required this.vendor,
+    this.distanceKm,
+    this.width,
+  });
 
   final Vendor vendor;
   final double? distanceKm;
@@ -29,14 +34,18 @@ class VendorCard extends ConsumerWidget {
       child: AppCard(
         padding: EdgeInsets.zero,
         onTap: () => context.push(AppRoutes.vendor(vendor.id)),
+        elevated: true,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Stack(
               children: [
                 AppImage(
-                  url: imageUrl(vendor.coverImageId ?? vendor.logoImageId, thumb: true),
-                  aspectRatio: 16 / 9,
+                  url: imageUrl(
+                    vendor.coverImageId ?? vendor.logoImageId,
+                    thumb: true,
+                  ),
+                  aspectRatio: 1.7,
                   borderRadius: BorderRadius.zero,
                   errorIcon: Icons.storefront_outlined,
                 ),
@@ -45,7 +54,11 @@ class VendorCard extends ConsumerWidget {
                   bottom: AppSpacing.sm,
                   child: Container(
                     padding: const EdgeInsets.all(2),
-                    decoration: BoxDecoration(color: scheme.surface, borderRadius: AppRadius.smAll),
+                    decoration: BoxDecoration(
+                      color: scheme.surface,
+                      borderRadius: AppRadius.smAll,
+                      border: Border.all(color: scheme.outlineVariant),
+                    ),
                     child: AppImage(
                       url: imageUrl(vendor.logoImageId, thumb: true),
                       width: 40,
@@ -64,7 +77,12 @@ class VendorCard extends ConsumerWidget {
                   Row(
                     children: [
                       Expanded(
-                        child: Text(vendor.name, maxLines: 1, overflow: TextOverflow.ellipsis, style: text.titleSmall),
+                        child: Text(
+                          vendor.name,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: text.titleSmall,
+                        ),
                       ),
                       StatusChip(
                         label: open ? 'Open' : 'Closed',
@@ -79,7 +97,10 @@ class VendorCard extends ConsumerWidget {
                     runSpacing: AppSpacing.xxs,
                     children: [
                       if (distanceKm != null)
-                        _Meta(icon: Icons.near_me_outlined, label: formatDistance(distanceKm!)),
+                        _Meta(
+                          icon: Icons.near_me_outlined,
+                          label: formatDistance(distanceKm!),
+                        ),
                       if (fee != null)
                         _Meta(
                           icon: Icons.delivery_dining_outlined,
@@ -112,7 +133,12 @@ class _Meta extends StatelessWidget {
       children: [
         Icon(icon, size: 14, color: scheme.onSurfaceVariant),
         const SizedBox(width: AppSpacing.xxs),
-        Text(label, style: context.text.bodySmall?.copyWith(color: scheme.onSurfaceVariant)),
+        Text(
+          label,
+          style: context.text.bodySmall?.copyWith(
+            color: scheme.onSurfaceVariant,
+          ),
+        ),
       ],
     );
   }

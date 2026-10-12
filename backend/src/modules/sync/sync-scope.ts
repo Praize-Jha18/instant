@@ -51,21 +51,33 @@ export function scopeFor(collection: SyncCollection, ctx: ScopeContext): Scope {
   const { user } = ctx;
   const me = new Types.ObjectId(user.userId);
   const isAdmin = hasRole(user, 'admin');
-  const vendorId = user.vendorId && hasRole(user, 'vendor_owner', 'vendor_staff') ? new Types.ObjectId(user.vendorId) : null;
+  const vendorId =
+    user.vendorId && hasRole(user, 'vendor_owner', 'vendor_staff')
+      ? new Types.ObjectId(user.vendorId)
+      : null;
   const riderId = hasRole(user, 'rider') ? ctx.riderProfileId : null;
 
   switch (collection) {
     case 'categories':
       return { filter: {} };
     case 'products':
+      // Vendor product management must only ever receive its own catalogue.
+      // Returning all active products here made another vendor's product look
+      // editable in the vendor app; image uploads then correctly failed the
+      // server-side ownership check with PRODUCT_NOT_FOUND.
+      if (isAdmin) return { filter: {} };
+      if (vendorId) return { filter: { vendorId } };
       return {
         filter: {},
-        isTombstone: (d) => d['status'] !== 'active' && !(vendorId && String(d['vendorId']) === String(vendorId)) && !isAdmin,
+        isTombstone: (d) => d['status'] !== 'active',
       };
     case 'vendors':
       return {
         filter: {},
-        isTombstone: (d) => d['status'] !== 'active' && !(vendorId && String(d._id) === String(vendorId)) && !isAdmin,
+        isTombstone: (d) =>
+          d['status'] !== 'active' &&
+          !(vendorId && String(d._id) === String(vendorId)) &&
+          !isAdmin,
       };
     case 'orders':
       if (isAdmin) return { filter: {} };
@@ -75,8 +87,12 @@ export function scopeFor(collection: SyncCollection, ctx: ScopeContext): Scope {
       if (isAdmin) return { filter: {} };
       if (vendorId) {
         return {
-          filter: hasRole(user, 'customer') ? { $or: [{ vendorId }, { customerId: me }] } : { vendorId },
-          isTombstone: (d) => d['status'] === 'awaiting_payment' && String(d['customerId']) !== String(me),
+          filter: hasRole(user, 'customer')
+            ? { $or: [{ vendorId }, { customerId: me }] }
+            : { vendorId },
+          isTombstone: (d) =>
+            d['status'] === 'awaiting_payment' &&
+            String(d['customerId']) !== String(me),
         };
       }
       if (hasRole(user, 'customer')) return { filter: { customerId: me } };

@@ -9,12 +9,31 @@ import 'app/providers.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  AppTypography.configure(allowRuntimeFetching: true);
-  final store = await LocalStore.open(name: AppConfig.storeName);
-  runApp(
-    ProviderScope(
-      overrides: [localStoreProvider.overrideWithValue(store)],
-      child: const RiderApp(),
-    ),
-  );
+  runApp(const RiderAppEntry());
+}
+
+/// Embeddable entry point for the rider experience in the unified app.
+class RiderAppEntry extends StatelessWidget {
+  const RiderAppEntry({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder<LocalStore>(
+      future: _initialize(),
+      builder: (context, snapshot) {
+        if (!snapshot.hasData) {
+          return const MaterialApp(home: Scaffold(body: Center(child: CircularProgressIndicator())));
+        }
+        return ProviderScope(
+          overrides: [localStoreProvider.overrideWithValue(snapshot.data!)],
+          child: const RiderApp(),
+        );
+      },
+    );
+  }
+
+  Future<LocalStore> _initialize() async {
+    AppTypography.configure(allowRuntimeFetching: true);
+    return LocalStore.open(name: AppConfig.storeName);
+  }
 }

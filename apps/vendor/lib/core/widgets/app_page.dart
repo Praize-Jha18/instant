@@ -5,16 +5,23 @@ import '../../app/config.dart';
 
 /// Centers [child] within [AppConfig.maxContentWidth] on wide screens.
 class ContentWidth extends StatelessWidget {
-  const ContentWidth({super.key, required this.child, this.maxWidth = AppConfig.maxContentWidth});
+  const ContentWidth({
+    super.key,
+    required this.child,
+    this.maxWidth = AppConfig.maxContentWidth,
+  });
 
   final Widget child;
   final double maxWidth;
 
   @override
   Widget build(BuildContext context) => Align(
-        alignment: Alignment.topCenter,
-        child: ConstrainedBox(constraints: BoxConstraints(maxWidth: maxWidth), child: child),
-      );
+    alignment: Alignment.topCenter,
+    child: ConstrainedBox(
+      constraints: BoxConstraints(maxWidth: maxWidth),
+      child: child,
+    ),
+  );
 }
 
 /// Page scaffold used by every screen: app bar, centered content width,
@@ -45,17 +52,17 @@ class AppPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Scaffold(
-        appBar: AppBar(
-          title: Text(title),
-          actions: actions,
-          leading: leading,
-          bottom: bottom,
-          automaticallyImplyLeading: automaticallyImplyLeading,
-        ),
-        body: constrain ? ContentWidth(child: body) : body,
-        floatingActionButton: floatingActionButton,
-        bottomNavigationBar: bottomBar,
-      );
+    appBar: AppBar(
+      title: Text(title, maxLines: 1, overflow: TextOverflow.ellipsis),
+      actions: actions,
+      leading: leading,
+      bottom: bottom,
+      automaticallyImplyLeading: automaticallyImplyLeading,
+    ),
+    body: constrain ? ContentWidth(child: body) : body,
+    floatingActionButton: floatingActionButton,
+    bottomNavigationBar: bottomBar,
+  );
 }
 
 /// Two columns when there is room (>= [breakpoint]), stacked otherwise.
@@ -79,23 +86,27 @@ class TwoPane extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => LayoutBuilder(
-        builder: (context, constraints) {
-          if (constraints.maxWidth < breakpoint) {
-            return Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [primary, SizedBox(height: gap), secondary],
-            );
-          }
-          return Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(flex: primaryFlex, child: primary),
-              SizedBox(width: gap),
-              Expanded(flex: secondaryFlex, child: secondary),
-            ],
-          );
-        },
+    builder: (context, constraints) {
+      if (constraints.maxWidth < breakpoint) {
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            primary,
+            SizedBox(height: gap),
+            secondary,
+          ],
+        );
+      }
+      return Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Expanded(flex: primaryFlex, child: primary),
+          SizedBox(width: gap),
+          Expanded(flex: secondaryFlex, child: secondary),
+        ],
       );
+    },
+  );
 }
 
 /// Key/value tile used on dashboards.
@@ -123,6 +134,7 @@ class StatTile extends StatelessWidget {
     final scheme = theme.colorScheme;
     return AppCard(
       onTap: onTap,
+      elevated: true,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
@@ -136,7 +148,9 @@ class StatTile extends StatelessWidget {
               Expanded(
                 child: Text(
                   label,
-                  style: theme.textTheme.labelLarge?.copyWith(color: scheme.onSurfaceVariant),
+                  style: theme.textTheme.labelLarge?.copyWith(
+                    color: scheme.onSurfaceVariant,
+                  ),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
@@ -145,12 +159,19 @@ class StatTile extends StatelessWidget {
           ),
           const SizedBox(height: AppSpacing.sm),
           DefaultTextStyle.merge(
-            style: theme.textTheme.headlineSmall?.copyWith(fontFeatures: AppTypography.tabularFigures),
+            style: theme.textTheme.headlineSmall?.copyWith(
+              fontFeatures: AppTypography.tabularFigures,
+            ),
             child: value,
           ),
           if (caption != null) ...[
             const SizedBox(height: AppSpacing.xs),
-            Text(caption!, style: theme.textTheme.bodySmall?.copyWith(color: scheme.onSurfaceVariant)),
+            Text(
+              caption!,
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: scheme.onSurfaceVariant,
+              ),
+            ),
           ],
         ],
       ),
@@ -176,7 +197,8 @@ class AsyncBody<T> extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final v = value;
-    if (v == null || (v.connectionState == ConnectionState.waiting && !v.hasData)) {
+    if (v == null ||
+        (v.connectionState == ConnectionState.waiting && !v.hasData)) {
       return skeleton ?? const SkeletonList();
     }
     if (v.hasError && !v.hasData) {
@@ -188,7 +210,12 @@ class AsyncBody<T> extends StatelessWidget {
 
 /// Label + value row for detail screens.
 class DetailRow extends StatelessWidget {
-  const DetailRow({super.key, required this.label, required this.value, this.trailing});
+  const DetailRow({
+    super.key,
+    required this.label,
+    required this.value,
+    this.trailing,
+  });
 
   final String label;
   final String value;
@@ -204,7 +231,12 @@ class DetailRow extends StatelessWidget {
         children: [
           SizedBox(
             width: 120,
-            child: Text(label, style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant)),
+            child: Text(
+              label,
+              style: theme.textTheme.bodyMedium?.copyWith(
+                color: theme.colorScheme.onSurfaceVariant,
+              ),
+            ),
           ),
           Expanded(child: Text(value, style: theme.textTheme.bodyMedium)),
           ?trailing,
@@ -230,7 +262,9 @@ class OnlineDot extends StatelessWidget {
         width: size,
         height: size,
         decoration: BoxDecoration(
-          color: online ? semantic.success : Theme.of(context).colorScheme.outlineVariant,
+          color: online
+              ? semantic.success
+              : Theme.of(context).colorScheme.outlineVariant,
           shape: BoxShape.circle,
         ),
       ),
@@ -259,23 +293,31 @@ class FilterChips<T> extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => SingleChildScrollView(
-        scrollDirection: Axis.horizontal,
-        padding: AppSpacing.pageH,
-        child: Row(
-          children: [
-            if (allLabel != null) ...[
-              ChoiceChip(label: Text(allLabel!), selected: selected == null, onSelected: (_) => onSelected(null)),
-              const SizedBox(width: AppSpacing.sm),
-            ],
-            for (final o in options) ...[
-              ChoiceChip(
-                label: Text(counts == null ? labelOf(o) : '${labelOf(o)} · ${counts![o] ?? 0}'),
-                selected: selected == o,
-                onSelected: (_) => onSelected(o),
-              ),
-              const SizedBox(width: AppSpacing.sm),
-            ],
-          ],
-        ),
-      );
+    scrollDirection: Axis.horizontal,
+    padding: AppSpacing.pageH,
+    child: Row(
+      children: [
+        if (allLabel != null) ...[
+          ChoiceChip(
+            label: Text(allLabel!),
+            selected: selected == null,
+            onSelected: (_) => onSelected(null),
+          ),
+          const SizedBox(width: AppSpacing.sm),
+        ],
+        for (final o in options) ...[
+          ChoiceChip(
+            label: Text(
+              counts == null
+                  ? labelOf(o)
+                  : '${labelOf(o)} · ${counts![o] ?? 0}',
+            ),
+            selected: selected == o,
+            onSelected: (_) => onSelected(o),
+          ),
+          const SizedBox(width: AppSpacing.sm),
+        ],
+      ],
+    ),
+  );
 }

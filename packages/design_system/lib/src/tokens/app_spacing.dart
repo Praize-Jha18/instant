@@ -12,12 +12,15 @@ abstract final class AppSpacing {
   static const double xxxl = 48;
 
   /// Horizontal page gutter.
-  static const double gutter = lg;
+  static const double gutter = 20;
 
-  static const EdgeInsets page = EdgeInsets.all(lg);
-  static const EdgeInsets pageH = EdgeInsets.symmetric(horizontal: lg);
+  static const EdgeInsets page = EdgeInsets.all(gutter);
+  static const EdgeInsets pageH = EdgeInsets.symmetric(horizontal: gutter);
   static const EdgeInsets card = EdgeInsets.all(lg);
-  static const EdgeInsets listItem = EdgeInsets.symmetric(horizontal: lg, vertical: md);
+  static const EdgeInsets listItem = EdgeInsets.symmetric(
+    horizontal: lg,
+    vertical: md,
+  );
 
   /// Minimum tap target.
   static const double tapTarget = 48;

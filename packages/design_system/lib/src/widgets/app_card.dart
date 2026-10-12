@@ -41,15 +41,15 @@ class AppCard extends StatelessWidget {
       margin: margin,
       clipBehavior: clipBehavior,
       decoration: BoxDecoration(
-        color: color ?? scheme.surfaceContainerLow,
+        color: color ?? scheme.surface,
         borderRadius: borderRadius,
-        border: outlined ? Border.all(color: scheme.outlineVariant.withValues(alpha: 0.6)) : null,
+        border: outlined ? Border.all(color: scheme.outlineVariant) : null,
         boxShadow: elevated
             ? [
                 BoxShadow(
-                  color: scheme.shadow.withValues(alpha: 0.08),
-                  blurRadius: 16,
-                  offset: const Offset(0, 6),
+                  color: scheme.shadow.withValues(alpha: 0.10),
+                  blurRadius: 24,
+                  offset: const Offset(0, 10),
                 ),
               ]
             : null,

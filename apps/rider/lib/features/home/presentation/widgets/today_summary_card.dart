@@ -13,18 +13,40 @@ class TodaySummaryCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final scheme = context.colors;
     return AppCard(
+      elevated: true,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Today', style: context.text.labelLarge?.copyWith(color: scheme.onSurfaceVariant)),
+          Text(
+            'TODAY AT A GLANCE',
+            style: context.text.labelLarge?.copyWith(
+              color: scheme.onSurfaceVariant,
+              letterSpacing: 0.8,
+            ),
+          ),
           AppSpacing.gapMd,
           Row(
             children: [
-              _Stat(label: 'Delivered', value: summary.delivered, icon: Icons.check_circle_outline_rounded, color: context.semanticColors.success),
+              _Stat(
+                label: 'Delivered',
+                value: summary.delivered,
+                icon: Icons.check_circle_outline_rounded,
+                color: context.semanticColors.success,
+              ),
               _Divider(),
-              _Stat(label: 'In progress', value: summary.inProgress, icon: Icons.route_outlined, color: scheme.primary),
+              _Stat(
+                label: 'In progress',
+                value: summary.inProgress,
+                icon: Icons.route_outlined,
+                color: scheme.primary,
+              ),
               _Divider(),
-              _Stat(label: 'Failed', value: summary.failed, icon: Icons.cancel_outlined, color: context.semanticColors.danger),
+              _Stat(
+                label: 'Failed',
+                value: summary.failed,
+                icon: Icons.cancel_outlined,
+                color: context.semanticColors.danger,
+              ),
             ],
           ),
         ],
@@ -34,7 +56,12 @@ class TodaySummaryCard extends StatelessWidget {
 }
 
 class _Stat extends StatelessWidget {
-  const _Stat({required this.label, required this.value, required this.icon, required this.color});
+  const _Stat({
+    required this.label,
+    required this.value,
+    required this.icon,
+    required this.color,
+  });
   final String label;
   final int value;
   final IconData icon;
@@ -42,27 +69,34 @@ class _Stat extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Expanded(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Icon(icon, color: color, size: 20),
-            AppSpacing.gapSm,
-            Text(
-              '$value',
-              style: context.text.headlineSmall?.copyWith(fontFeatures: AppTypography.tabularFigures),
-            ),
-            Text(label, style: context.text.bodySmall?.copyWith(color: context.colors.onSurfaceVariant)),
-          ],
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Icon(icon, color: color, size: 20),
+        AppSpacing.gapSm,
+        Text(
+          '$value',
+          style: context.text.headlineSmall?.copyWith(
+            fontFeatures: AppTypography.tabularFigures,
+          ),
         ),
-      );
+        Text(
+          label,
+          style: context.text.bodySmall?.copyWith(
+            color: context.colors.onSurfaceVariant,
+          ),
+        ),
+      ],
+    ),
+  );
 }
 
 class _Divider extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Container(
-        width: 1,
-        height: 56,
-        margin: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
-        color: context.colors.outlineVariant.withValues(alpha: 0.6),
-      );
+    width: 1,
+    height: 56,
+    margin: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
+    color: context.colors.outlineVariant.withValues(alpha: 0.6),
+  );
 }

@@ -54,7 +54,8 @@ class AppShell extends StatelessWidget {
   final Widget? railHeader;
   final Widget? railTrailing;
 
-  static bool isCompact(BuildContext context) => MediaQuery.sizeOf(context).width < compactBreakpoint;
+  static bool isCompact(BuildContext context) =>
+      MediaQuery.sizeOf(context).width < compactBreakpoint;
 
   @override
   Widget build(BuildContext context) {
@@ -74,6 +75,7 @@ class AppShell extends StatelessWidget {
       return Scaffold(
         body: content,
         bottomNavigationBar: NavigationBar(
+          animationDuration: AppMotion.normal,
           selectedIndex: selected,
           onDestinationSelected: (i) => onSelectBranch(compact[i].branch),
           destinations: [
@@ -97,17 +99,23 @@ class AppShell extends StatelessWidget {
         children: [
           NavigationRail(
             extended: extended,
-            minExtendedWidth: 220,
+            minWidth: 76,
+            minExtendedWidth: 240,
             selectedIndex: selectedIndex == -1 ? null : selectedIndex,
             onDestinationSelected: (i) => onSelectBranch(wide[i].branch),
-            labelType: extended ? NavigationRailLabelType.none : NavigationRailLabelType.all,
+            labelType: extended
+                ? NavigationRailLabelType.none
+                : NavigationRailLabelType.all,
             leading: railHeader,
             trailing: railTrailing == null
                 ? null
                 : Expanded(
                     child: Align(
                       alignment: Alignment.bottomCenter,
-                      child: Padding(padding: const EdgeInsets.only(bottom: AppSpacing.lg), child: railTrailing),
+                      child: Padding(
+                        padding: const EdgeInsets.only(bottom: AppSpacing.lg),
+                        child: railTrailing,
+                      ),
                     ),
                   ),
             destinations: [

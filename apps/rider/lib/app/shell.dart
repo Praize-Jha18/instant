@@ -35,15 +35,27 @@ class RiderShell extends ConsumerWidget {
         ],
       ),
       bottomNavigationBar: NavigationBar(
+        animationDuration: AppMotion.normal,
         selectedIndex: navigationShell.currentIndex,
         onDestinationSelected: (i) {
           HapticFeedback.selectionClick();
-          navigationShell.goBranch(i, initialLocation: i == navigationShell.currentIndex);
+          navigationShell.goBranch(
+            i,
+            initialLocation: i == navigationShell.currentIndex,
+          );
         },
         destinations: [
           NavigationDestination(
-            icon: Badge.count(count: offers, isLabelVisible: offers > 0, child: const Icon(Icons.home_outlined)),
-            selectedIcon: Badge.count(count: offers, isLabelVisible: offers > 0, child: const Icon(Icons.home_rounded)),
+            icon: Badge.count(
+              count: offers,
+              isLabelVisible: offers > 0,
+              child: const Icon(Icons.home_outlined),
+            ),
+            selectedIcon: Badge.count(
+              count: offers,
+              isLabelVisible: offers > 0,
+              child: const Icon(Icons.home_rounded),
+            ),
             label: 'Home',
           ),
           const NavigationDestination(

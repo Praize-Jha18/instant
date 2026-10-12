@@ -4,7 +4,11 @@ import 'package:flutter/material.dart';
 
 /// Compact card for the delivery currently in progress.
 class ActiveDeliveryCard extends StatelessWidget {
-  const ActiveDeliveryCard({super.key, required this.delivery, required this.onOpen});
+  const ActiveDeliveryCard({
+    super.key,
+    required this.delivery,
+    required this.onOpen,
+  });
 
   final Delivery delivery;
   final VoidCallback onOpen;
@@ -17,6 +21,7 @@ class ActiveDeliveryCard extends StatelessWidget {
     return AppCard(
       onTap: onOpen,
       color: scheme.primaryContainer.withValues(alpha: 0.35),
+      elevated: true,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -25,19 +30,28 @@ class ActiveDeliveryCard extends StatelessWidget {
               StatusChip.delivery(delivery.status),
               const Spacer(),
               if (delivery.orderNumber != null)
-                Text('#${delivery.orderNumber}', style: context.text.labelLarge?.copyWith(color: scheme.onSurfaceVariant)),
+                Text(
+                  '#${delivery.orderNumber}',
+                  style: context.text.labelLarge?.copyWith(
+                    color: scheme.onSurfaceVariant,
+                  ),
+                ),
             ],
           ),
           AppSpacing.gapMd,
           Text(
-            pickedUp ? 'Deliver to ${delivery.customerName ?? 'customer'}' : 'Pick up at ${delivery.pickup?.vendorName ?? 'vendor'}',
+            pickedUp
+                ? 'Deliver to ${delivery.customerName ?? 'customer'}'
+                : 'Pick up at ${delivery.pickup?.vendorName ?? 'vendor'}',
             style: context.text.titleMedium,
           ),
           if ((pickedUp ? address : delivery.pickup?.line1) != null) ...[
             AppSpacing.gapXs,
             Text(
               pickedUp ? address! : delivery.pickup!.line1!,
-              style: context.text.bodyMedium?.copyWith(color: scheme.onSurfaceVariant),
+              style: context.text.bodyMedium?.copyWith(
+                color: scheme.onSurfaceVariant,
+              ),
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
             ),

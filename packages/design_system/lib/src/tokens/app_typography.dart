@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-/// Typography built on Inter via google_fonts with a graceful fallback.
+/// Typography built on Manrope via google_fonts with a graceful fallback.
 ///
 /// Nothing is bundled: fonts are fetched at runtime when
 /// [allowRuntimeFetching] is true and cached by google_fonts. When fetching is
@@ -9,7 +9,7 @@ import 'package:google_fonts/google_fonts.dart';
 /// with the same metrics, so layouts never break.
 abstract final class AppTypography {
   /// Primary family requested from Google Fonts.
-  static const String fontFamily = 'Inter';
+  static const String fontFamily = 'Manrope';
 
   /// Fallback families when Inter is not available.
   static const List<String> fontFamilyFallback = [
@@ -32,7 +32,10 @@ abstract final class AppTypography {
   ///
   /// [allowRuntimeFetching] false + no bundled font makes google_fonts log an
   /// error and fall back, which is fine; we additionally guard every call.
-  static void configure({bool allowRuntimeFetching = true, bool useGoogleFonts = true}) {
+  static void configure({
+    bool allowRuntimeFetching = true,
+    bool useGoogleFonts = true,
+  }) {
     _useGoogleFonts = useGoogleFonts;
     GoogleFonts.config.allowRuntimeFetching = allowRuntimeFetching;
   }
@@ -45,16 +48,18 @@ abstract final class AppTypography {
     final ramp = _ramp(base);
     if (!_useGoogleFonts) return _withFallback(ramp);
     try {
-      return GoogleFonts.interTextTheme(ramp);
+      return GoogleFonts.manropeTextTheme(ramp);
     } catch (e, st) {
       // google_fonts throws synchronously only on misconfiguration; log and
       // keep the fallback so the app still renders.
-      FlutterError.reportError(FlutterErrorDetails(
-        exception: e,
-        stack: st,
-        library: 'design_system',
-        context: ErrorDescription('while loading Inter; using system font'),
-      ));
+      FlutterError.reportError(
+        FlutterErrorDetails(
+          exception: e,
+          stack: st,
+          library: 'design_system',
+          context: ErrorDescription('while loading Inter; using system font'),
+        ),
+      );
       return _withFallback(ramp);
     }
   }
@@ -64,17 +69,34 @@ abstract final class AppTypography {
 
   /// Our type ramp: slightly tighter headings, comfortable body.
   static TextTheme _ramp(TextTheme base) => base.copyWith(
-        displaySmall: base.displaySmall?.copyWith(fontWeight: FontWeight.w700, letterSpacing: -0.5),
-        headlineMedium: base.headlineMedium?.copyWith(fontWeight: FontWeight.w700, letterSpacing: -0.5),
-        headlineSmall: base.headlineSmall?.copyWith(fontWeight: FontWeight.w700, letterSpacing: -0.25),
-        titleLarge: base.titleLarge?.copyWith(fontWeight: FontWeight.w600),
-        titleMedium: base.titleMedium?.copyWith(fontWeight: FontWeight.w600),
-        titleSmall: base.titleSmall?.copyWith(fontWeight: FontWeight.w600),
-        bodyLarge: base.bodyLarge?.copyWith(height: 1.4),
-        bodyMedium: base.bodyMedium?.copyWith(height: 1.4),
-        labelLarge: base.labelLarge?.copyWith(fontWeight: FontWeight.w600, letterSpacing: 0.1),
-      );
+    displaySmall: base.displaySmall?.copyWith(
+      fontWeight: FontWeight.w800,
+      letterSpacing: -1.0,
+    ),
+    headlineMedium: base.headlineMedium?.copyWith(
+      fontWeight: FontWeight.w800,
+      letterSpacing: -0.8,
+    ),
+    headlineSmall: base.headlineSmall?.copyWith(
+      fontWeight: FontWeight.w800,
+      letterSpacing: -0.5,
+    ),
+    titleLarge: base.titleLarge?.copyWith(
+      fontWeight: FontWeight.w700,
+      letterSpacing: -0.3,
+    ),
+    titleMedium: base.titleMedium?.copyWith(fontWeight: FontWeight.w600),
+    titleSmall: base.titleSmall?.copyWith(fontWeight: FontWeight.w600),
+    bodyLarge: base.bodyLarge?.copyWith(height: 1.4),
+    bodyMedium: base.bodyMedium?.copyWith(height: 1.4),
+    labelLarge: base.labelLarge?.copyWith(
+      fontWeight: FontWeight.w600,
+      letterSpacing: 0.1,
+    ),
+  );
 
   /// Tabular figures for money and counters.
-  static const List<FontFeature> tabularFigures = [FontFeature.tabularFigures()];
+  static const List<FontFeature> tabularFigures = [
+    FontFeature.tabularFigures(),
+  ];
 }

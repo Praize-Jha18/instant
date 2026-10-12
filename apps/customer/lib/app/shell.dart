@@ -18,8 +18,12 @@ class AppShell extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final engine = ref.watch(syncEngineProvider);
     final status = ref.watch(syncStatusProvider).value;
-    final bannerVisible = status != null &&
-        (status.isOffline || status.isSyncing || status.phase == SyncPhase.error || status.hasPending);
+    final bannerVisible =
+        status != null &&
+        (status.isOffline ||
+            status.isSyncing ||
+            status.phase == SyncPhase.error ||
+            status.hasPending);
     final cartCount = ref.watch(cartCountProvider);
 
     return Scaffold(
@@ -63,8 +67,14 @@ class AppShell extends ConsumerWidget {
             label: 'Search',
           ),
           NavigationDestination(
-            icon: CartBadge(count: cartCount, child: const Icon(Icons.shopping_bag_outlined)),
-            selectedIcon: CartBadge(count: cartCount, child: const Icon(Icons.shopping_bag_rounded)),
+            icon: CartBadge(
+              count: cartCount,
+              child: const Icon(Icons.shopping_bag_outlined),
+            ),
+            selectedIcon: CartBadge(
+              count: cartCount,
+              child: const Icon(Icons.shopping_bag_rounded),
+            ),
             label: 'Cart',
           ),
           const NavigationDestination(

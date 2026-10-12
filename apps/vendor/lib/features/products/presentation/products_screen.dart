@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../app/providers.dart';
+import '../../../app/session.dart';
 import '../../../core/utils/errors.dart';
 import '../../../core/utils/format.dart';
 import '../../../core/widgets/app_page.dart';
@@ -34,17 +35,24 @@ class _ProductsScreenState extends ConsumerState<ProductsScreen> {
     final products = ref.watch(productsStreamProvider);
     final online = ref.watch(isOnlineProvider);
     final api = ref.watch(apiClientProvider);
+    final vendorId = ref.watch(sessionProvider.select((s) => s.user?.vendorId));
     return AppPage(
       title: 'Products',
       actions: [
         IconButton(
-            tooltip: 'Refresh',
-            icon: const Icon(Icons.refresh_rounded),
-            onPressed: () => refreshCollections(ref, const [Collections.products, Collections.categories])),
+          tooltip: 'Refresh',
+          icon: const Icon(Icons.refresh_rounded),
+          onPressed: () => refreshCollections(ref, const [
+            Collections.products,
+            Collections.categories,
+          ]),
+        ),
       ],
       floatingActionButton: FloatingActionButton.extended(
         heroTag: 'new-product',
-        tooltip: online ? 'New product' : 'Creating products requires a connection',
+        tooltip: online
+            ? 'New product'
+            : 'Creating products requires a connection',
         onPressed: online ? () => context.go('/products/new') : null,
         icon: const Icon(Icons.add_rounded),
         label: const Text('New product'),
@@ -52,7 +60,12 @@ class _ProductsScreenState extends ConsumerState<ProductsScreen> {
       body: Column(
         children: [
           Padding(
-            padding: const EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.sm, AppSpacing.lg, 0),
+            padding: const EdgeInsets.fromLTRB(
+              AppSpacing.lg,
+              AppSpacing.sm,
+              AppSpacing.lg,
+              0,
+            ),
             child: AppTextField(
               controller: _search,
               hint: 'Search by name, tag or SKU',
@@ -95,48 +108,82 @@ class _ProductsScreenState extends ConsumerState<ProductsScreen> {
                   children: List.generate(6, (_) => const SkeletonCard()),
                 ),
               ),
-              error: (e, _) => ErrorState(message: errorMessage(e), onRetry: () => refreshCollections(ref)),
+              error: (e, _) => ErrorState(
+                message: errorMessage(e),
+                onRetry: () => refreshCollections(ref),
+              ),
               data: (all) {
                 final q = _search.text.trim().toLowerCase();
                 final list = all.where((p) {
+                  // Older local stores may contain products received before
+                  // the backend scope was corrected. Never present those as
+                  // editable to this vendor.
+                  if (vendorId == null || p.vendorId != vendorId) return false;
                   if (_status != null && p.status != _status) return false;
                   if (_lowStockOnly && p.totalStock > 5) return false;
                   if (q.isEmpty) return true;
                   return p.name.toLowerCase().contains(q) ||
                       p.tags.any((t) => t.toLowerCase().contains(q)) ||
-                      p.variants.any((v) => (v.sku ?? '').toLowerCase().contains(q) || v.name.toLowerCase().contains(q));
+                      p.variants.any(
+                        (v) =>
+                            (v.sku ?? '').toLowerCase().contains(q) ||
+                            v.name.toLowerCase().contains(q),
+                      );
                 }).toList();
                 if (list.isEmpty) {
                   return EmptyState(
                     icon: Icons.inventory_2_outlined,
                     title: all.isEmpty ? 'No products yet' : 'Nothing matches',
-                    message: all.isEmpty ? 'Create your first product. Drafts are only visible to you.' : 'Try a different search or filter.',
+                    message: all.isEmpty
+                        ? 'Create your first product. Drafts are only visible to you.'
+                        : 'Try a different search or filter.',
                     action: all.isEmpty
                         ? AppButton.primary(
                             label: 'New product',
                             icon: Icons.add_rounded,
-                            onPressed: online ? () => context.go('/products/new') : null,
-                            tooltip: 'You are offline')
+                            onPressed: online
+                                ? () => context.go('/products/new')
+                                : null,
+                            tooltip: 'You are offline',
+                          )
                         : null,
                   );
                 }
                 return RefreshIndicator(
-                  onRefresh: () => refreshCollections(ref, const [Collections.products, Collections.categories]),
+                  onRefresh: () => refreshCollections(ref, const [
+                    Collections.products,
+                    Collections.categories,
+                  ]),
                   child: LayoutBuilder(
                     builder: (context, c) {
                       final wide = c.maxWidth >= 700;
                       if (!wide) {
                         return ListView.separated(
-                          padding: const EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.sm, AppSpacing.lg, 96),
+                          padding: const EdgeInsets.fromLTRB(
+                            AppSpacing.lg,
+                            AppSpacing.sm,
+                            AppSpacing.lg,
+                            96,
+                          ),
                           itemCount: list.length,
                           separatorBuilder: (_, _) => AppSpacing.gapSm,
                           itemBuilder: (context, i) => FadeSlideIn.staggered(
-                              index: i, child: _ProductListTile(product: list[i], imageUrl: _thumb(api, list[i]))),
+                            index: i,
+                            child: _ProductListTile(
+                              product: list[i],
+                              imageUrl: _thumb(api, list[i]),
+                            ),
+                          ),
                         );
                       }
                       final columns = (c.maxWidth / 260).floor().clamp(2, 5);
                       return GridView.builder(
-                        padding: const EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.sm, AppSpacing.lg, 96),
+                        padding: const EdgeInsets.fromLTRB(
+                          AppSpacing.lg,
+                          AppSpacing.sm,
+                          AppSpacing.lg,
+                          96,
+                        ),
                         gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                           crossAxisCount: columns,
                           crossAxisSpacing: AppSpacing.md,
@@ -145,7 +192,12 @@ class _ProductsScreenState extends ConsumerState<ProductsScreen> {
                         ),
                         itemCount: list.length,
                         itemBuilder: (context, i) => FadeSlideIn.staggered(
-                            index: i, child: _ProductGridCard(product: list[i], imageUrl: _thumb(api, list[i]))),
+                          index: i,
+                          child: _ProductGridCard(
+                            product: list[i],
+                            imageUrl: _thumb(api, list[i]),
+                          ),
+                        ),
                       );
                     },
                   ),
@@ -173,7 +225,9 @@ class _StockBadge extends StatelessWidget {
     final low = product.totalStock <= 5;
     return StatusChip(
       label: '${product.totalStock} in stock',
-      tone: product.totalStock == 0 ? StatusTone.danger : (low ? StatusTone.warning : StatusTone.neutral),
+      tone: product.totalStock == 0
+          ? StatusTone.danger
+          : (low ? StatusTone.warning : StatusTone.neutral),
       dense: true,
       icon: low ? Icons.warning_amber_rounded : null,
     );
@@ -181,10 +235,10 @@ class _StockBadge extends StatelessWidget {
 }
 
 StatusTone _productTone(ProductStatus s) => switch (s) {
-      ProductStatus.draft => StatusTone.neutral,
-      ProductStatus.active => StatusTone.success,
-      ProductStatus.archived => StatusTone.warning,
-    };
+  ProductStatus.draft => StatusTone.neutral,
+  ProductStatus.active => StatusTone.success,
+  ProductStatus.archived => StatusTone.warning,
+};
 
 class _ProductListTile extends StatelessWidget {
   const _ProductListTile({required this.product, required this.imageUrl});
@@ -199,25 +253,52 @@ class _ProductListTile extends StatelessWidget {
       onTap: () => context.go('/products/${product.id}'),
       child: Row(
         children: [
-          AppImage(url: imageUrl, width: 72, height: 72, heroTag: 'product-${product.id}'),
+          AppImage(
+            url: imageUrl,
+            width: 72,
+            height: 72,
+            heroTag: 'product-${product.id}',
+          ),
           const SizedBox(width: AppSpacing.md),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(product.name, style: theme.textTheme.titleSmall, maxLines: 1, overflow: TextOverflow.ellipsis),
+                Text(
+                  product.name,
+                  style: theme.textTheme.titleSmall,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
                 const SizedBox(height: AppSpacing.xxs),
-                Row(children: [
-                  MoneyText.kobo(product.minPriceKobo, showDecimals: false, style: theme.textTheme.bodyMedium),
-                  if (product.hasVariants)
-                    Text('  · ${product.variants.length} variants',
-                        style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant)),
-                ]),
+                Row(
+                  children: [
+                    MoneyText.kobo(
+                      product.minPriceKobo,
+                      showDecimals: false,
+                      style: theme.textTheme.bodyMedium,
+                    ),
+                    if (product.hasVariants)
+                      Text(
+                        '  · ${product.variants.length} variants',
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          color: theme.colorScheme.onSurfaceVariant,
+                        ),
+                      ),
+                  ],
+                ),
                 const SizedBox(height: AppSpacing.xs),
-                Wrap(spacing: AppSpacing.xs, children: [
-                  StatusChip(label: titleCase(product.status.json), tone: _productTone(product.status), dense: true),
-                  _StockBadge(product: product),
-                ]),
+                Wrap(
+                  spacing: AppSpacing.xs,
+                  children: [
+                    StatusChip(
+                      label: titleCase(product.status.json),
+                      tone: _productTone(product.status),
+                      dense: true,
+                    ),
+                    _StockBadge(product: product),
+                  ],
+                ),
               ],
             ),
           ),
@@ -246,29 +327,52 @@ class _ProductGridCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          AppImage(url: imageUrl, aspectRatio: 1.4, borderRadius: BorderRadius.zero, heroTag: 'product-${product.id}'),
+          AppImage(
+            url: imageUrl,
+            aspectRatio: 1.4,
+            borderRadius: BorderRadius.zero,
+            heroTag: 'product-${product.id}',
+          ),
           Padding(
             padding: const EdgeInsets.all(AppSpacing.md),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(product.name, style: theme.textTheme.titleSmall, maxLines: 1, overflow: TextOverflow.ellipsis),
+                Text(
+                  product.name,
+                  style: theme.textTheme.titleSmall,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
                 const SizedBox(height: AppSpacing.xxs),
-                MoneyText.kobo(product.minPriceKobo, showDecimals: false, style: theme.textTheme.bodyMedium),
+                MoneyText.kobo(
+                  product.minPriceKobo,
+                  showDecimals: false,
+                  style: theme.textTheme.bodyMedium,
+                ),
                 const SizedBox(height: AppSpacing.sm),
                 Row(
                   children: [
                     Expanded(
-                      child: Wrap(spacing: AppSpacing.xs, runSpacing: AppSpacing.xs, children: [
-                        StatusChip(label: titleCase(product.status.json), tone: _productTone(product.status), dense: true),
-                        _StockBadge(product: product),
-                      ]),
+                      child: Wrap(
+                        spacing: AppSpacing.xs,
+                        runSpacing: AppSpacing.xs,
+                        children: [
+                          StatusChip(
+                            label: titleCase(product.status.json),
+                            tone: _productTone(product.status),
+                            dense: true,
+                          ),
+                          _StockBadge(product: product),
+                        ],
+                      ),
                     ),
                     IconButton(
                       tooltip: 'Adjust stock',
                       visualDensity: VisualDensity.compact,
                       icon: const Icon(Icons.tune_rounded, size: 20),
-                      onPressed: () => showStockAdjustSheet(context, product: product),
+                      onPressed: () =>
+                          showStockAdjustSheet(context, product: product),
                     ),
                   ],
                 ),

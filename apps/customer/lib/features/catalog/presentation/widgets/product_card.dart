@@ -11,7 +11,12 @@ import '../../../../app/routes.dart';
 String productHeroTag(String productId) => 'product-image-$productId';
 
 class ProductCard extends ConsumerWidget {
-  const ProductCard({super.key, required this.product, this.vendorName, this.hero = true});
+  const ProductCard({
+    super.key,
+    required this.product,
+    this.vendorName,
+    this.hero = true,
+  });
 
   final Product product;
   final String? vendorName;
@@ -28,24 +33,31 @@ class ProductCard extends ConsumerWidget {
     return AppCard(
       padding: EdgeInsets.zero,
       onTap: () => context.push(AppRoutes.product(product.id)),
+      elevated: true,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Stack(
-            children: [
-              AppImage(
-                url: url,
-                aspectRatio: 1,
-                borderRadius: BorderRadius.zero,
-                heroTag: hero ? productHeroTag(product.id) : null,
-              ),
-              if (outOfStock)
-                Positioned(
-                  top: AppSpacing.sm,
-                  left: AppSpacing.sm,
-                  child: StatusChip(label: 'Sold out', tone: StatusTone.danger, dense: true),
+          Expanded(
+            child: Stack(
+              fit: StackFit.expand,
+              children: [
+                AppImage(
+                  url: url,
+                  borderRadius: BorderRadius.zero,
+                  heroTag: hero ? productHeroTag(product.id) : null,
                 ),
-            ],
+                if (outOfStock)
+                  Positioned(
+                    top: AppSpacing.sm,
+                    left: AppSpacing.sm,
+                    child: StatusChip(
+                      label: 'Sold out',
+                      tone: StatusTone.danger,
+                      dense: true,
+                    ),
+                  ),
+              ],
+            ),
           ),
           Padding(
             padding: const EdgeInsets.all(AppSpacing.md),
@@ -56,7 +68,10 @@ class ProductCard extends ConsumerWidget {
                   product.name,
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
-                  style: text.titleSmall,
+                  style: text.titleSmall?.copyWith(
+                    fontWeight: FontWeight.w700,
+                    height: 1.2,
+                  ),
                 ),
                 if (vendorName != null) ...[
                   const SizedBox(height: AppSpacing.xxs),
@@ -64,19 +79,32 @@ class ProductCard extends ConsumerWidget {
                     vendorName!,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: text.bodySmall?.copyWith(color: scheme.onSurfaceVariant),
+                    style: text.bodySmall?.copyWith(
+                      color: scheme.onSurfaceVariant,
+                    ),
                   ),
                 ],
-                const SizedBox(height: AppSpacing.xs),
+                const SizedBox(height: AppSpacing.md),
                 Row(
                   children: [
                     Expanded(
-                      child: MoneyText.kobo(product.minPriceKobo, emphasize: true, showDecimals: false),
+                      child: MoneyText.kobo(
+                        product.minPriceKobo,
+                        emphasize: true,
+                        showDecimals: false,
+                      ),
                     ),
                     if (product.rating.count > 0) ...[
-                      Icon(Icons.star_rounded, size: 16, color: context.semanticColors.warning),
+                      Icon(
+                        Icons.star_rounded,
+                        size: 15,
+                        color: scheme.onSurface,
+                      ),
                       const SizedBox(width: AppSpacing.xxs),
-                      Text(product.rating.avg.toStringAsFixed(1), style: text.labelMedium),
+                      Text(
+                        product.rating.avg.toStringAsFixed(1),
+                        style: text.labelMedium,
+                      ),
                     ],
                   ],
                 ),
@@ -106,12 +134,13 @@ class ProductGrid extends StatelessWidget {
   final bool shrinkWrap;
   final ScrollPhysics? physics;
 
-  static const SliverGridDelegate gridDelegate = SliverGridDelegateWithMaxCrossAxisExtent(
-    maxCrossAxisExtent: 220,
-    mainAxisSpacing: AppSpacing.md,
-    crossAxisSpacing: AppSpacing.md,
-    childAspectRatio: 0.68,
-  );
+  static const SliverGridDelegate gridDelegate =
+      SliverGridDelegateWithMaxCrossAxisExtent(
+        maxCrossAxisExtent: 220,
+        mainAxisSpacing: AppSpacing.md,
+        crossAxisSpacing: AppSpacing.md,
+        childAspectRatio: 0.62,
+      );
 
   @override
   Widget build(BuildContext context) {
@@ -123,25 +152,32 @@ class ProductGrid extends StatelessWidget {
       itemCount: products.length,
       itemBuilder: (context, i) => FadeSlideIn.staggered(
         index: i,
-        child: ProductCard(product: products[i], vendorName: vendorNames[products[i].vendorId]),
+        child: ProductCard(
+          product: products[i],
+          vendorName: vendorNames[products[i].vendorId],
+        ),
       ),
     );
   }
 }
 
 class ProductGridSkeleton extends StatelessWidget {
-  const ProductGridSkeleton({super.key, this.count = 6, this.padding = AppSpacing.pageH});
+  const ProductGridSkeleton({
+    super.key,
+    this.count = 6,
+    this.padding = AppSpacing.pageH,
+  });
 
   final int count;
   final EdgeInsetsGeometry padding;
 
   @override
   Widget build(BuildContext context) => GridView.builder(
-        padding: padding,
-        physics: const NeverScrollableScrollPhysics(),
-        shrinkWrap: true,
-        gridDelegate: ProductGrid.gridDelegate,
-        itemCount: count,
-        itemBuilder: (_, _) => const SkeletonCard(),
-      );
+    padding: padding,
+    physics: const NeverScrollableScrollPhysics(),
+    shrinkWrap: true,
+    gridDelegate: ProductGrid.gridDelegate,
+    itemCount: count,
+    itemBuilder: (_, _) => const SkeletonCard(),
+  );
 }

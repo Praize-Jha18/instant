@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 
-/// Colour tokens (§9). Light and dark [ColorScheme]s are generated from one
-/// seed; semantic colours live in [AppSemanticColors] (a [ThemeExtension]).
+/// Colour tokens for a clear, editorial commerce interface. The palette is
+/// deliberately restrained: ink for hierarchy, warm paper for surfaces, and
+/// one confident terracotta action colour.
 abstract final class AppColors {
-  /// Brand seed. Change it here and both schemes follow.
-  static const Color seed = Color(0xFF0E7C66);
+  static const Color seed = Color(0xFFC84F35);
+  static const Color ink = Color(0xFF17212B);
+  static const Color paper = Color(0xFFFFFCF8);
+  static const Color terracotta = Color(0xFFC84F35);
 
   static const Color success = Color(0xFF16A34A);
   static const Color warning = Color(0xFFD97706);
@@ -15,10 +18,50 @@ abstract final class AppColors {
   static const Color money = Color(0xFF15803D);
 
   static ColorScheme lightScheme([Color seedColor = seed]) =>
-      ColorScheme.fromSeed(seedColor: seedColor, brightness: Brightness.light);
+      ColorScheme.fromSeed(
+        seedColor: seedColor,
+        brightness: Brightness.light,
+      ).copyWith(
+        primary: terracotta,
+        onPrimary: Colors.white,
+        primaryContainer: const Color(0xFFFFE4DD),
+        onPrimaryContainer: const Color(0xFF4A140B),
+        secondary: const Color(0xFF445B6E),
+        onSecondary: Colors.white,
+        secondaryContainer: const Color(0xFFDCE8F0),
+        onSecondaryContainer: const Color(0xFF10212E),
+        surface: paper,
+        surfaceContainerLowest: paper,
+        surfaceContainerLow: const Color(0xFFF7F3EE),
+        surfaceContainer: const Color(0xFFF1ECE6),
+        surfaceContainerHighest: const Color(0xFFEAE4DD),
+        onSurface: ink,
+        onSurfaceVariant: const Color(0xFF5D6268),
+        outline: const Color(0xFF77736D),
+        outlineVariant: const Color(0xFFD9D2C9),
+      );
 
   static ColorScheme darkScheme([Color seedColor = seed]) =>
-      ColorScheme.fromSeed(seedColor: seedColor, brightness: Brightness.dark);
+      ColorScheme.fromSeed(
+        seedColor: seedColor,
+        brightness: Brightness.dark,
+      ).copyWith(
+        primary: const Color(0xFFFFB4A3),
+        onPrimary: const Color(0xFF611B0F),
+        primaryContainer: const Color(0xFF8E321F),
+        onPrimaryContainer: const Color(0xFFFFDDD4),
+        secondary: const Color(0xFFB7CBD8),
+        onSecondary: const Color(0xFF203541),
+        surface: const Color(0xFF17191B),
+        surfaceContainerLowest: const Color(0xFF17191B),
+        surfaceContainerLow: const Color(0xFF1E2124),
+        surfaceContainer: const Color(0xFF25282B),
+        surfaceContainerHighest: const Color(0xFF303337),
+        onSurface: const Color(0xFFF3F0EB),
+        onSurfaceVariant: const Color(0xFFCAC5BF),
+        outline: const Color(0xFF928E89),
+        outlineVariant: const Color(0xFF484A4D),
+      );
 }
 
 /// Semantic colours that Material's scheme does not carry. Read them with
@@ -132,28 +175,27 @@ class AppSemanticColors extends ThemeExtension<AppSemanticColors> {
     Color? skeletonBase,
     Color? skeletonHighlight,
     Color? money,
-  }) =>
-      AppSemanticColors(
-        success: success ?? this.success,
-        onSuccess: onSuccess ?? this.onSuccess,
-        successContainer: successContainer ?? this.successContainer,
-        onSuccessContainer: onSuccessContainer ?? this.onSuccessContainer,
-        warning: warning ?? this.warning,
-        onWarning: onWarning ?? this.onWarning,
-        warningContainer: warningContainer ?? this.warningContainer,
-        onWarningContainer: onWarningContainer ?? this.onWarningContainer,
-        danger: danger ?? this.danger,
-        onDanger: onDanger ?? this.onDanger,
-        dangerContainer: dangerContainer ?? this.dangerContainer,
-        onDangerContainer: onDangerContainer ?? this.onDangerContainer,
-        info: info ?? this.info,
-        onInfo: onInfo ?? this.onInfo,
-        infoContainer: infoContainer ?? this.infoContainer,
-        onInfoContainer: onInfoContainer ?? this.onInfoContainer,
-        skeletonBase: skeletonBase ?? this.skeletonBase,
-        skeletonHighlight: skeletonHighlight ?? this.skeletonHighlight,
-        money: money ?? this.money,
-      );
+  }) => AppSemanticColors(
+    success: success ?? this.success,
+    onSuccess: onSuccess ?? this.onSuccess,
+    successContainer: successContainer ?? this.successContainer,
+    onSuccessContainer: onSuccessContainer ?? this.onSuccessContainer,
+    warning: warning ?? this.warning,
+    onWarning: onWarning ?? this.onWarning,
+    warningContainer: warningContainer ?? this.warningContainer,
+    onWarningContainer: onWarningContainer ?? this.onWarningContainer,
+    danger: danger ?? this.danger,
+    onDanger: onDanger ?? this.onDanger,
+    dangerContainer: dangerContainer ?? this.dangerContainer,
+    onDangerContainer: onDangerContainer ?? this.onDangerContainer,
+    info: info ?? this.info,
+    onInfo: onInfo ?? this.onInfo,
+    infoContainer: infoContainer ?? this.infoContainer,
+    onInfoContainer: onInfoContainer ?? this.onInfoContainer,
+    skeletonBase: skeletonBase ?? this.skeletonBase,
+    skeletonHighlight: skeletonHighlight ?? this.skeletonHighlight,
+    money: money ?? this.money,
+  );
 
   @override
   AppSemanticColors lerp(ThemeExtension<AppSemanticColors>? other, double t) {
